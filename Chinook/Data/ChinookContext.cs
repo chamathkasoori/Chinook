@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 using Chinook.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace Chinook;
+namespace Chinook.Data;
 
 public partial class ChinookContext : IdentityDbContext<ChinookUser>
 {
