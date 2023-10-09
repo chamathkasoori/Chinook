@@ -16,16 +16,28 @@ public partial class ChinookContext : IdentityDbContext<ChinookUser>
     }
 
     public virtual DbSet<Album> Albums { get; set; } = null!;
+
     public virtual DbSet<Artist> Artists { get; set; } = null!;
+
     public virtual DbSet<Customer> Customers { get; set; } = null!;
+
     public virtual DbSet<Employee> Employees { get; set; } = null!;
+
     public virtual DbSet<Genre> Genres { get; set; } = null!;
+
     public virtual DbSet<Invoice> Invoices { get; set; } = null!;
+
     public virtual DbSet<InvoiceLine> InvoiceLines { get; set; } = null!;
+
     public virtual DbSet<MediaType> MediaTypes { get; set; } = null!;
+
     public virtual DbSet<Playlist> Playlists { get; set; } = null!;
+
     public virtual DbSet<Track> Tracks { get; set; } = null!;
+
     public virtual DbSet<UserPlaylist> UserPlaylists { get; set; } = null!;
+
+    public virtual DbSet<PlaylistTrack> PlaylistTracks { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -220,19 +232,8 @@ public partial class ChinookContext : IdentityDbContext<ChinookUser>
             entity.Property(e => e.Name).HasColumnType("NVARCHAR(120)");
 
             entity.HasMany(d => d.Tracks)
-                .WithMany(p => p.Playlists)
-                .UsingEntity<Dictionary<string, object>>(
-                    "PlaylistTrack",
-                    l => l.HasOne<Track>().WithMany().HasForeignKey("TrackId").OnDelete(DeleteBehavior.ClientSetNull),
-                    r => r.HasOne<Playlist>().WithMany().HasForeignKey("PlaylistId").OnDelete(DeleteBehavior.ClientSetNull),
-                    j =>
-                    {
-                        j.HasKey("PlaylistId", "TrackId");
-
-                        j.ToTable("PlaylistTrack");
-
-                        j.HasIndex(new[] { "TrackId" }, "IFK_PlaylistTrackTrackId");
-                    });
+               .WithMany(p => p.Playlists)
+               .UsingEntity<PlaylistTrack>();
         });
 
         modelBuilder.Entity<Track>(entity =>
