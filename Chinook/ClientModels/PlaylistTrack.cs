@@ -11,4 +11,6 @@ public class PlaylistTrack
     public string ArtistName { get; set; } = string.Empty;
 
     public bool IsFavorite { get; set; }
+
+    public List<Playlist> Playlists { get; set; }
 }

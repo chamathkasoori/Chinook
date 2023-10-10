@@ -336,7 +336,7 @@ namespace Chinook.Migrations
 
                     b.HasIndex("TrackId");
 
-                    b.ToTable("PlaylistTracks");
+                    b.ToTable("PlaylistTrack", (string)null);
                 });
 
             modelBuilder.Entity("Chinook.Models.Track", b =>

@@ -8,6 +8,7 @@ namespace Chinook.Services;
 public class TrackService
 {
     private readonly IDbContextFactory<ChinookContext> _dbContextFactory;
+    private readonly ChinookContext _dbContext;
     private const string Favorites = "Favorites";
 
     public TrackService(IDbContextFactory<ChinookContext> dbContextFactory)
@@ -21,12 +22,17 @@ public class TrackService
         {
             return dbContext.Tracks.Where(a => a.Album.ArtistId == artistId)
             .Include(a => a.Album)
+            .Include(p => p.Playlists)
             .Select(t => new PlaylistTrack()
             {
                 AlbumTitle = (t.Album == null ? "-" : t.Album.Title),
                 TrackId = t.TrackId,
                 TrackName = t.Name,
-                IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name == Favorites)).Any()
+                IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name == Favorites)).Any(),
+                Playlists = t.Playlists.Where(p => p.Name != Favorites).Select(p => new ClientModels.Playlist() {
+                    Id = p.PlaylistId,
+                    Name = p.Name
+                }).ToList()
             })
             .ToList();
         }
@@ -46,12 +52,16 @@ public class TrackService
 
             playlist = dbContext
                 .Playlists
+                .Include(p => p.Tracks)
                 .FirstOrDefault(u => u.Name == Favorites);
 
-            track = dbContext.Tracks.FirstOrDefault(t => t.TrackId == trackId);
 
+            track = dbContext.Tracks.FirstOrDefault(t => t.TrackId == trackId);
+            
             if (userPlaylist == null)
             {
+                playlist.Tracks.Add(track);
+
                 userPlaylist = new()
                 {
                     User = dbContext.Users.FirstOrDefault(u => u.Id == userId),
@@ -60,24 +70,14 @@ public class TrackService
 
                 dbContext.UserPlaylists.Add(userPlaylist);
             }
-
-            if (isFavorite)
-            {
-                Models.PlaylistTrack playlistTrack = new()
-                {
-                    Playlist = playlist,
-                    Track = track
-                };
-
-                dbContext.PlaylistTracks.Add(playlistTrack);
-            }
             else
             {
-                var playLisTrack = dbContext
-                    .PlaylistTracks
-                    .FirstOrDefault(t => t.Playlist == playlist && t.Track == track);
+                if (isFavorite)
+                    playlist.Tracks.Add(track);
+                else
+                    playlist.Tracks.Remove(track);
 
-                dbContext.PlaylistTracks.Remove(playLisTrack);
+                dbContext.Update(playlist);
             }
 
             await dbContext.SaveChangesAsync();
