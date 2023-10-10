@@ -30,7 +30,7 @@ else
             {
                 <tr>
                     <td><a href="Artist/@artist.ArtistId">@artist.Name</a></td>
-                    <td>@artist.Albums.Count()</td>
+                    <td>@artist.AlbumCount</td>
                 </tr>
             }
         </tbody>
@@ -38,7 +38,7 @@ else
 }
 
 @code {
-    private List<Artist> Artists = new();
+    private List<ClientModels.Artist> Artists = new();
 
     protected override async Task OnInitializedAsync() {
         await InvokeAsync(StateHasChanged);
