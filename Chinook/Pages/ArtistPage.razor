@@ -101,15 +101,7 @@ else
                         <tr>
                             <td>@playlist.Name</td>
                             <td>
-                              @*   @if (track.IsFavorite)
-                                {
-                                    <a href="#" class="m-1" title="Unmark as favorite" @onclick="@(() => UnfavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star-fill"></i></a>
-                                }
-                                else
-                                {
-                                    <a href="#" class="m-1" title="Mark as favorite" @onclick="@(() => FavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star"></i></a>
-                                }
-                                <a href="#" class="m-1" title="Add to playlist" @onclick="@(() => OpenPlaylistDialog(track.TrackId))" @onclick:preventDefault><i class="bi bi-file-earmark-plus"></i></a> *@
+                                <a href="#" class="m-1" title="Remove track" @onclick="AddTrackToPlaylist" @onclick:preventDefault><i class="bi bi-trash"></i></a>
                             </td>
                         </tr>
                     }
@@ -183,11 +175,6 @@ else
         CloseInfoMessage();
         SelectedTrack = Tracks.FirstOrDefault(t => t.TrackId == trackId);
         PlaylistDialog.Open();
-        selectedPlaylistId = 0;
-
-        await InvokeAsync(StateHasChanged);
-        await UpdateTable();
-        await GetAllPlaylists();
     }
 
     private async void AddTrackToPlaylist()
@@ -206,6 +193,14 @@ else
         CloseInfoMessage();
         InfoMessage = $"Track {Artist?.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {{playlist name}}.";
         PlaylistDialog.Close();
+
+        selectedPlaylistId = 0;
+        SelectedTrack = null;
+        newPlaylistName = string.Empty;
+
+        await InvokeAsync(StateHasChanged);
+        await UpdateTable();
+        await GetAllPlaylists();
     }
 
     private void CloseInfoMessage()

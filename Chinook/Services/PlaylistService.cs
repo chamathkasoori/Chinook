@@ -1,9 +1,6 @@
 ﻿using Chinook.Models;
 using Chinook.Data;
 using Microsoft.EntityFrameworkCore;
-using Chinook.Pages;
-using Chinook.Migrations;
-using Chinook.ClientModels;
 
 namespace Chinook.Services
 {
