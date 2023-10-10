@@ -1,6 +1,7 @@
 ﻿using Chinook.Models;
 using Chinook.Data;
 using Microsoft.EntityFrameworkCore;
+using Chinook.ClientModels;
 
 namespace Chinook.Services
 {
@@ -17,16 +18,16 @@ namespace Chinook.Services
 
         public async Task<List<Models.Playlist>> GetAllPlaylists()
         {
-                return _dbContext
-                    .Playlists
-                    .ToList();
+            return _dbContext
+                .Playlists
+                .ToList();
         }
 
         public async Task AddTrackToPlayList(ClientModels.Playlist playlist, string userId)
         {
             Models.Playlist? playlistModel = null;
 
-            if (!string.IsNullOrEmpty(playlist.Name) 
+            if (!string.IsNullOrEmpty(playlist.Name)
                 && !_dbContext.Playlists.Any(p => p.Name == playlist.Name)
             )
             {
@@ -64,7 +65,7 @@ namespace Chinook.Services
         public async Task CreateUserPlaylist(Models.Playlist? playlistModel, string userId)
         {
             if (!_dbContext.UserPlaylists.Any(p => p.PlaylistId == playlistModel.PlaylistId && p.UserId == userId))
-            { 
+            {
                 UserPlaylist userPlaylist = new()
                 {
                     User = _dbContext.Users.FirstOrDefault(u => u.Id == userId),
@@ -80,8 +81,59 @@ namespace Chinook.Services
         {
             return _dbContext
                 .Playlists
-                .Include (p => p.Tracks)
+                .Include(p => p.Tracks)
                 .FirstOrDefault(u => u.Name == name);
         }
+
+        public async Task<List<ClientModels.Playlist>> GetUserPlaylists(string userId)
+        =>
+                _dbContext
+                .UserPlaylists
+                .Include(up => up.Playlist)
+                .Where(up => up.UserId == userId)
+                .Select(up => new ClientModels.Playlist()
+                {
+                    Id = up.Playlist.PlaylistId,
+                    Name = up.Playlist.Name
+                })
+                .ToList();
+
+        public async Task<ClientModels.Playlist?> GetPlaylistById(long playlistId, string userId)
+        {
+            return _dbContext.Playlists
+                .Include(a => a.Tracks).ThenInclude(a => a.Album).ThenInclude(a => a.Artist)
+                .Where(p => p.PlaylistId == playlistId)
+                .Select(p => new ClientModels.Playlist()
+                {
+                    Name = p.Name,
+                    Tracks = p.Tracks.Select(t => new ClientModels.PlaylistTrack()
+                    {
+                        AlbumTitle = t.Album.Title,
+                        ArtistName = t.Album.Artist.Name,
+                        TrackId = t.TrackId,
+                        TrackName = t.Name,
+                        IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name == "Favorites")).Any()
+                    }).ToList()
+                })
+                .FirstOrDefault();
+        }
+
+        public async Task RemoveTrackFromPlaylist(long playlistId, long trackId)
+        {
+            var playlist = _dbContext.
+                Playlists.
+                Include(a => a.Tracks).
+                FirstOrDefault(p => p.PlaylistId == playlistId);
+
+            var track = _dbContext
+                .Tracks
+                .FirstOrDefault(t => t.TrackId == trackId);
+            
+            playlist.Tracks.Remove(track);
+
+            _dbContext.Update(playlist);
+            _dbContext.SaveChanges();
+        }
+       
     }
 }

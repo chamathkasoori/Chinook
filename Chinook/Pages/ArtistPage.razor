@@ -86,29 +86,6 @@ else
             </select>
         </div>
 
-        @if (SelectedTrack != null && SelectedTrack.Playlists.Count() > 0)
-        {    
-            <table class="table table-striped table-hover table-sm">
-                <thead>
-                    <tr>
-                        <th>Existing Playlists</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var playlist in SelectedTrack.Playlists)
-                    {
-                        <tr>
-                            <td>@playlist.Name</td>
-                            <td>
-                                <a href="#" class="m-1" title="Remove track" @onclick="AddTrackToPlaylist" @onclick:preventDefault><i class="bi bi-trash"></i></a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-
         <div class="form-group mb-2">
             <label for="NewPlaylist">Create new playlist</label>
             <input type="text" id="NewPlaylist" @bind="newPlaylistName" class="form-control" placeholder="Name for the new playlist">
