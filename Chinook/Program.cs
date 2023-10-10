@@ -1,6 +1,7 @@
-using Chinook;
 using Chinook.Areas.Identity;
+using Chinook.Data;
 using Chinook.Models;
+using Chinook.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ChinookUser>>();
+builder.Services.AddScoped<ArtistService>();
+builder.Services.AddScoped<TrackService>();
+builder.Services.AddScoped<PlaylistService>();
 
 var app = builder.Build();
 

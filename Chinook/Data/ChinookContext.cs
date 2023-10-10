@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Chinook.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace Chinook;
+namespace Chinook.Data;
 
 public partial class ChinookContext : IdentityDbContext<ChinookUser>
 {
